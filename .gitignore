@@ -1,0 +1,18 @@
+# macOS specific desktop files.
+**/.DS_Store
+
+# .NET binary folders.
+**/bin
+**/obj
+
+# Angular/Node folders.
+**/.angular
+**/node_modules
+
+# Build target of Angular.
+**/wwwroot/*
+
+# DB and temp DB files.
+**/*.db
+**/*.db-shm
+**/*.db-wal
