@@ -19,7 +19,8 @@ builder.Services.AddDbContext<KanbanContext>((options) =>
 );
 
 builder.Services
-    .AddTransient<IColumnService, ColumnService>();
+    .AddTransient<IColumnService, ColumnService>()
+    .AddTransient<ITicketService, TicketService>();
 
 var app = builder.Build();
 
