@@ -52,6 +52,11 @@ public class ColumnController(IColumnService columns) : ControllerBase
 	[EndpointSummary("Get al endpoints, ordered by their position.")]
 	public ActionResult<List<ColumnResponse>> GetAllOrdered()
 	{
-		return Ok(columns.GetAllOrdered());
+		List<ColumnResponse> response = [.. columns
+			.GetAllOrdered()
+			.Select((x) => new ColumnResponse(x.Id, x.Name, x.Position))
+		];
+
+		return Ok(response);
 	}
 }
