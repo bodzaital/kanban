@@ -1,8 +1,11 @@
+using Kanban.Context;
+using Kanban.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-
 builder.Services.AddCors((options) =>
 {
     options.AddDefaultPolicy((policy) => policy
@@ -11,12 +14,19 @@ builder.Services.AddCors((options) =>
         .AllowAnyMethod()
     );
 });
+builder.Services.AddDbContext<KanbanContext>((options) =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
+builder.Services
+    .AddTransient<IColumnService, ColumnService>();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+	app.MapOpenApi();
+	app.UseSwaggerUI((options) => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
 }
 
 app.UseHttpsRedirection();
