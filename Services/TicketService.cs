@@ -1,24 +1,26 @@
 using Kanban.Context;
+using Kanban.Data;
+using OneOf;
 
 namespace Kanban.Services;
 
 public interface ITicketService
 {
-	Ticket? Create(string title, string description, string columnId);
-	Ticket? Get(string id);
-	bool Delete(string id);
-	bool Reorder(string id, int newPosition);
-	bool Retitle(string id, string newTitle);
-	bool UpdateDescription(string id, string newDescription);
-	bool MoveToColumn(string id, string columnId);
+	OneOf<Ticket, ErrorBase> Create(string title, string description, string columnId);
+	OneOf<Ticket, ErrorBase> Get(string id);
+	OneOf<bool, ErrorBase> Delete(string id);
+	OneOf<bool, ErrorBase> Reorder(string id, int newPosition);
+	OneOf<bool, ErrorBase> Retitle(string id, string newTitle);
+	OneOf<bool, ErrorBase> UpdateDescription(string id, string newDescription);
+	OneOf<bool, ErrorBase> MoveToColumn(string id, string columnId);
 }
 
 public class TicketService(KanbanContext context) : ITicketService
 {
-	public Ticket? Create(string title, string description, string columnId)
+	public OneOf<Ticket, ErrorBase> Create(string title, string description, string columnId)
 	{
 		Column? column = context.Columns.Find(columnId);
-		if (column is null) return null;
+		if (column is null) return new ColumnNotFound();
 		
 		context.Entry(column).Collection((x) => x.Tickets).Load();
 
@@ -45,20 +47,20 @@ public class TicketService(KanbanContext context) : ITicketService
 		return ticket;
 	}
 
-	public Ticket? Get(string id)
+	public OneOf<Ticket, ErrorBase> Get(string id)
 	{
 		Ticket? ticket = context.Ticket.Find(id);
-		if (ticket is null) return null;
+		if (ticket is null) return new TicketNotFound();
 
 		context.Entry(ticket).Reference((x) => x.Column).Load();
 
 		return ticket;
 	}
 
-	public bool Delete(string id)
+	public OneOf<bool, ErrorBase> Delete(string id)
 	{
 		Ticket? ticket = context.Ticket.Find(id);
-		if (ticket is null) return false;
+		if (ticket is null) return new TicketNotFound();
 
 		context.Entry(ticket).Reference((x) => x.Column).Load();
 
@@ -69,10 +71,10 @@ public class TicketService(KanbanContext context) : ITicketService
 		return true;
 	}
 
-	public bool Reorder(string id, int newPosition)
+	public OneOf<bool, ErrorBase> Reorder(string id, int newPosition)
 	{
 		Ticket? ticket = context.Ticket.Find(id);
-		if (ticket is null) return false;
+		if (ticket is null) return new TicketNotFound();
 
 		List<Ticket> ticketsAfterExceptThat = [.. context.Ticket
 			.Where((x) => x.Position >= newPosition)
@@ -89,10 +91,10 @@ public class TicketService(KanbanContext context) : ITicketService
 		return true;
 	}
 
-	public bool Retitle(string id, string newTitle)
+	public OneOf<bool, ErrorBase> Retitle(string id, string newTitle)
 	{
 		Ticket? ticket = context.Ticket.Find(id);
-		if (ticket is null) return false;
+		if (ticket is null) return new TicketNotFound();
 
 		ticket.Title = newTitle;
 
@@ -101,10 +103,10 @@ public class TicketService(KanbanContext context) : ITicketService
 		return true;
 	}
 
-	public bool UpdateDescription(string id, string newDescription)
+	public OneOf<bool, ErrorBase> UpdateDescription(string id, string newDescription)
 	{
 		Ticket? ticket = context.Ticket.Find(id);
-		if (ticket is null) return false;
+		if (ticket is null) return new TicketNotFound();
 
 		ticket.Description = newDescription;
 
@@ -113,16 +115,16 @@ public class TicketService(KanbanContext context) : ITicketService
 		return true;
 	}
 
-	public bool MoveToColumn(string id, string columnId)
+	public OneOf<bool, ErrorBase> MoveToColumn(string id, string columnId)
 	{
 		Ticket? ticket = context.Ticket.Find(id);
-		if (ticket is null) return false;
+		if (ticket is null) return new TicketNotFound();
 
 		context.Entry(ticket).Reference((x) => x.Column).Load();
 		string originalColumnId = ticket.Column.Id;
 
 		Column? column = context.Columns.Find(columnId);
-		if (column is null) return false;
+		if (column is null) return new ColumnNotFound();
 
 		context.Entry(column).Collection((x) => x.Tickets).Load();
 		int lastPositionInNewColumn = column.Tickets

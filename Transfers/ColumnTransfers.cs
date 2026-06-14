@@ -11,3 +11,11 @@ public record ColumnResponse(
 	int Position,
 	List<string> TicketIds
 );
+
+public record ColumnPositionRequest(
+	int Position
+);
+
+public record ColumnNameRequest(
+	string Name
+);

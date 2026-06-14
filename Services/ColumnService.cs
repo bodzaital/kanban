@@ -1,15 +1,17 @@
 using Kanban.Context;
+using Kanban.Data;
+using OneOf;
 
 namespace Kanban.Services;
 
 public interface IColumnService
 {
 	Column Create(string name);
-	bool Delete(string id);
+	OneOf<bool, ErrorBase> Delete(string id);
 	List<Column> GetAllOrdered();
-	Column? Get(string id);
-	bool Reorder(string id, int newPosition);
-	bool Rename(string id, string newName);
+	OneOf<Column, ErrorBase> Get(string id);
+	OneOf<Column, ErrorBase> Reorder(string id, int newPosition);
+	OneOf<Column, ErrorBase> Rename(string id, string newName);
 }
 
 public class ColumnService(KanbanContext context) : IColumnService
@@ -34,10 +36,10 @@ public class ColumnService(KanbanContext context) : IColumnService
 		return column;
 	}
 
-	public bool Delete(string id)
+	public OneOf<bool, ErrorBase> Delete(string id)
 	{
 		Column? column = context.Columns.Find(id);
-		if (column is null) return false;
+		if (column is null) return new ColumnNotFound();
 		
 		context.Columns.Remove(column);
 		RePositionColumns(column.Position);
@@ -51,20 +53,20 @@ public class ColumnService(KanbanContext context) : IColumnService
 		return [.. context.Columns.OrderBy((x) => x.Position)];
 	}
 
-	public Column? Get(string id)
+	public OneOf<Column, ErrorBase> Get(string id)
 	{
 		Column? column = context.Columns.Find(id);
-		if (column is null) return null;
+		if (column is null) return new ColumnNotFound();
 
 		context.Entry(column).Collection((x) => x.Tickets).Load();
 
 		return column;
 	}
 
-	public bool Reorder(string id, int newPosition)
+	public OneOf<Column, ErrorBase> Reorder(string id, int newPosition)
 	{
 		Column? column = context.Columns.Find(id);
-		if (column is null) return false;
+		if (column is null) return new ColumnNotFound();
 
 		List<Column> columnsAfterExceptThat = [.. context.Columns
 			.Where((x) => x.Position >= newPosition)
@@ -78,18 +80,18 @@ public class ColumnService(KanbanContext context) : IColumnService
 
 		context.SaveChanges();
 
-		return true;
+		return column;
 	}
 
-	public bool Rename(string id, string newName)
+	public OneOf<Column, ErrorBase> Rename(string id, string newName)
 	{
 		Column? column = context.Columns.Find(id);
-		if (column is null) return false;
+		if (column is null) return new ColumnNotFound();
 
 		column.Name = newName;
 		context.SaveChanges();
 		
-		return true;
+		return column;
 	}
 
 	private void RePositionColumns(int position)

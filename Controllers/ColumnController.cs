@@ -1,13 +1,15 @@
 using Kanban.Context;
+using Kanban.Data;
 using Kanban.Services;
 using Kanban.Transfers;
 using Microsoft.AspNetCore.Mvc;
+using OneOf;
 
 namespace Kanban.Controllers;
 
 [ApiController]
 [Route("/api/column")]
-public class ColumnController(IColumnService columns) : ControllerBase
+public class ColumnController(IColumnService columns) : ControllerParent
 {
 	[HttpPost]
 	[EndpointSummary("Create a column by specifying a name.")]
@@ -23,23 +25,20 @@ public class ColumnController(IColumnService columns) : ControllerBase
 
 	[HttpDelete("{id}")]
 	[EndpointSummary("Delete a column by ID.")]
-	public ActionResult Delete(string id)
+	public IActionResult Delete(string id)
 	{
-		bool result = columns.Delete(id);
+		OneOf<bool, ErrorBase> result = columns.Delete(id);
 
-		return result
-			? NoContent()
-			: NotFound();
+		return result.Match((x) => NoContent(), Error);
 	}
 
 	[HttpGet("{id}")]
 	[EndpointSummary("Get a column and its ticket IDs, ordered by their position.")]
 	public ActionResult<ColumnResponse> Get(string id)
 	{
-		Column? column = columns.Get(id);
-		if (column is null) return NotFound();
+		OneOf<Column, ErrorBase> result = columns.Get(id);
 
-		return Ok(column.ToResponse());
+		return result.Match((x) => Ok(x.ToResponse()), Error);
 	}
 
 	[HttpGet]
@@ -54,24 +53,22 @@ public class ColumnController(IColumnService columns) : ControllerBase
 		return Ok(response);
 	}
 
-	[HttpPatch("{id}")]
-	[EndpointSummary("Update a column.")]
-	public ActionResult<ColumnResponse> Update(string id, [FromBody] ColumnRequest request)
+	[HttpPatch("{id}/position")]
+	[EndpointSummary("Update the position of a column")]
+	public ActionResult<ColumnResponse> UpdatePosition(string id, [FromBody] ColumnPositionRequest request)
 	{
-		if (request.Position is not null)
-		{
-			bool reorderResult = columns.Reorder(id, request.Position.Value);
-			if (!reorderResult) return NotFound();
-		}
+		OneOf<Column, ErrorBase> result = columns.Reorder(id, request.Position);
 
-		if (request.Name is not null)
-		{
-			bool renameResult = columns.Rename(id, request.Name);
-			if (!renameResult) return NotFound();
-		}
+		return result.Match(Ok, Error);
 
-		Column column = columns.Get(id)!;
+	}
 
-		return Ok(column.ToResponse());
+	[HttpPatch("{id}/name")]
+	[EndpointSummary("Update the name of a column")]
+	public ActionResult<ColumnResponse> UpdateName(string id, [FromBody] ColumnNameRequest request)
+	{
+		OneOf<Column, ErrorBase> result = columns.Rename(id, request.Name);
+
+		return result.Match(Ok, Error);
 	}
 }
