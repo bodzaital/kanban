@@ -47,4 +47,15 @@ public class TicketController(ITicketService tickets) : ControllerBase
 			ticket.Column.Id
 		));
 	}
+
+	[HttpDelete("ticket/{id}")]
+	[SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Swagger UI requires it")]
+	public ActionResult Delete(string columnId, string id)
+	{
+		bool result = tickets.Delete(id);
+
+		return result
+			? NoContent()
+			: NotFound();
+	}
 }

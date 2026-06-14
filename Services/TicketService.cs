@@ -6,6 +6,7 @@ public interface ITicketService
 {
 	Ticket? Create(string title, string description, string columnId);
 	Ticket? Get(string id);
+	bool Delete(string id);
 }
 
 public class TicketService(KanbanContext context) : ITicketService
@@ -48,5 +49,30 @@ public class TicketService(KanbanContext context) : ITicketService
 		context.Entry(ticket).Reference((x) => x.Column).Load();
 
 		return ticket;
+	}
+
+	public bool Delete(string id)
+	{
+		Ticket? ticket = context.Ticket.Find(id);
+		if (ticket is null) return false;
+
+		context.Entry(ticket).Reference((x) => x.Column).Load();
+
+		context.Ticket.Remove(ticket);
+		RePositionTickets(ticket.Column.Id, ticket.Position);
+
+		context.SaveChanges();
+		return true;
+	}
+
+	private void RePositionTickets(string columnId, int position)
+	{
+		Column column = context.Columns.Find(columnId)
+			?? throw new Exception($"Expected column {columnId} to exist but it did not, failed to reposition tickets after ticket was deleted.");
+		
+		context.Entry(column).Collection((x) => x.Tickets).Load();
+
+		List<Ticket> ticketsAfter = [.. column.Tickets.Where((x) => x.Position > position)];
+		ticketsAfter.ForEach((x) => x.Position = position++);
 	}
 }
