@@ -1,3 +1,5 @@
+using Kanban.Transfers;
+
 namespace Kanban.Context;
 
 public class Ticket
@@ -8,4 +10,13 @@ public class Ticket
 	public required string Title { get; set; }
 	public required string Description { get; set; }
 	public required Column Column { get; set; }
+
+	public TicketResponse ToResponse() => new(
+		Id,
+		Number,
+		Position,
+		Title,
+		Description,
+		Column.Id
+	);
 }

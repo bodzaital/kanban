@@ -1,3 +1,5 @@
+using Kanban.Transfers;
+
 namespace Kanban.Context;
 
 public class Column
@@ -6,4 +8,11 @@ public class Column
 	public required string Name { get; set; }
 	public required int Position { get; set; }
 	public ICollection<Ticket> Tickets { get; set; } = [];
+
+	public ColumnResponse ToResponse() => new(
+		Id,
+		Name,
+		Position,
+		[.. Tickets.Select((x) => x.Id)]
+	);
 }

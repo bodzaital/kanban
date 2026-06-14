@@ -10,6 +10,7 @@ public record TicketRequest(
 public record TicketResponse(
 	string Id,
 	int Number,
+	int Position,
 	string Title,
 	string Description,
 	string ColumnId

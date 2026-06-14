@@ -18,11 +18,7 @@ public class ColumnController(IColumnService columns) : ControllerBase
 
 		Column createdColumn = columns.Create(request.Name);
 
-		return Created($"/api/column/{createdColumn.Id}", new ColumnResponse(
-			createdColumn.Id,
-			createdColumn.Name,
-			createdColumn.Position
-		));
+		return Created($"/api/column/{createdColumn.Id}", createdColumn.ToResponse());
 	}
 
 	[HttpDelete("{id}")]
@@ -38,17 +34,12 @@ public class ColumnController(IColumnService columns) : ControllerBase
 
 	[HttpGet("{id}")]
 	[EndpointSummary("Get a column and its ticket IDs, ordered by their position.")]
-	public ActionResult<ColumnDetailResponse> Get(string id)
+	public ActionResult<ColumnResponse> Get(string id)
 	{
 		Column? column = columns.Get(id);
 		if (column is null) return NotFound();
 
-		return Ok(new ColumnDetailResponse(
-			column.Id,
-			column.Name,
-			column.Position,
-			[.. column.Tickets.OrderBy((x) => x.Position).Select((x) => x.Id)]
-		));
+		return Ok(column.ToResponse());
 	}
 
 	[HttpGet]
@@ -57,7 +48,7 @@ public class ColumnController(IColumnService columns) : ControllerBase
 	{
 		List<ColumnResponse> response = [.. columns
 			.GetAllOrdered()
-			.Select((x) => new ColumnResponse(x.Id, x.Name, x.Position))
+			.Select((x) => x.ToResponse())
 		];
 
 		return Ok(response);
@@ -81,11 +72,6 @@ public class ColumnController(IColumnService columns) : ControllerBase
 
 		Column column = columns.Get(id)!;
 
-		return Ok(new ColumnDetailResponse(
-			column.Id,
-			column.Name,
-			column.Position,
-			[.. column.Tickets.OrderBy((x) => x.Position).Select((x) => x.Id)]
-		));
+		return Ok(column.ToResponse());
 	}
 }

@@ -25,13 +25,7 @@ public class TicketController(ITicketService tickets) : ControllerBase
 
 		return ticket is null
 			? NotFound("Column not found.")
-			: Created($"/api/column/{columnId}/ticket/{ticket.Id}", new TicketResponse(
-				ticket.Id,
-				ticket.Number,
-				ticket.Title,
-				ticket.Description,
-				ticket.Column.Id
-			));
+			: Created($"/api/column/{columnId}/ticket/{ticket.Id}", ticket.ToResponse());
 	}
 
 	[HttpGet("ticket/{id}")]
@@ -42,13 +36,7 @@ public class TicketController(ITicketService tickets) : ControllerBase
 		Ticket? ticket = tickets.Get(id);
 		if (ticket is null) return NotFound();
 
-		return Ok(new TicketResponse(
-			ticket.Id,
-			ticket.Number,
-			ticket.Title,
-			ticket.Description,
-			ticket.Column.Id
-		));
+		return Ok(ticket.ToResponse());
 	}
 
 	[HttpPatch("ticket/{id}")]
@@ -76,13 +64,7 @@ public class TicketController(ITicketService tickets) : ControllerBase
 
 		Ticket ticket = tickets.Get(id)!;
 
-		return Ok(new TicketResponse(
-			ticket.Id,
-			ticket.Number,
-			ticket.Title,
-			ticket.Description,
-			ticket.Column.Id
-		));
+		return Ok(ticket.ToResponse());
 	}
 
 	[HttpPatch("ticket/{id}/column")]
@@ -96,13 +78,7 @@ public class TicketController(ITicketService tickets) : ControllerBase
 
 		Ticket ticket = tickets.Get(id)!;
 
-		return Ok(new TicketResponse(
-			ticket.Id,
-			ticket.Number,
-			ticket.Title,
-			ticket.Description,
-			ticket.Column.Id
-		));
+		return Ok(ticket.ToResponse());
 	}
 
 	[HttpDelete("ticket/{id}")]
