@@ -79,6 +79,13 @@ public class ColumnController(IColumnService columns) : ControllerBase
 			if (!renameResult) return NotFound();
 		}
 
-		return Ok(columns.Get(id));
+		Column column = columns.Get(id)!;
+
+		return Ok(new ColumnDetailResponse(
+			column.Id,
+			column.Name,
+			column.Position,
+			[.. column.Tickets.OrderBy((x) => x.Position).Select((x) => x.Id)]
+		));
 	}
 }
