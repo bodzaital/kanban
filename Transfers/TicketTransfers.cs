@@ -1,8 +1,10 @@
 namespace Kanban.Transfers;
 
 public record TicketRequest(
-	string Title,
-	string Description
+	string? Title,
+	string? Description,
+	int? Position,
+	string? ColumnId
 );
 
 public record TicketResponse(

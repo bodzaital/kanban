@@ -7,6 +7,10 @@ public interface ITicketService
 	Ticket? Create(string title, string description, string columnId);
 	Ticket? Get(string id);
 	bool Delete(string id);
+	bool Reorder(string id, int newPosition);
+	bool Retitle(string id, string newTitle);
+	bool UpdateDescription(string id, string newDescription);
+	bool MoveToColumn(string id, string columnId);
 }
 
 public class TicketService(KanbanContext context) : ITicketService
@@ -62,6 +66,76 @@ public class TicketService(KanbanContext context) : ITicketService
 		RePositionTickets(ticket.Column.Id, ticket.Position);
 
 		context.SaveChanges();
+		return true;
+	}
+
+	public bool Reorder(string id, int newPosition)
+	{
+		Ticket? ticket = context.Ticket.Find(id);
+		if (ticket is null) return false;
+
+		List<Ticket> ticketsAfterExceptThat = [.. context.Ticket
+			.Where((x) => x.Position >= newPosition)
+			.Where((x) => x.Id != id)
+		];
+
+		int nextPosition = newPosition + 1;
+
+		ticketsAfterExceptThat.ForEach((x) => x.Position = nextPosition++);
+		ticket.Position = newPosition + 1;
+
+		context.SaveChanges();
+
+		return true;
+	}
+
+	public bool Retitle(string id, string newTitle)
+	{
+		Ticket? ticket = context.Ticket.Find(id);
+		if (ticket is null) return false;
+
+		ticket.Title = newTitle;
+
+		context.SaveChanges();
+
+		return true;
+	}
+
+	public bool UpdateDescription(string id, string newDescription)
+	{
+		Ticket? ticket = context.Ticket.Find(id);
+		if (ticket is null) return false;
+
+		ticket.Description = newDescription;
+
+		context.SaveChanges();
+
+		return true;
+	}
+
+	public bool MoveToColumn(string id, string columnId)
+	{
+		Ticket? ticket = context.Ticket.Find(id);
+		if (ticket is null) return false;
+
+		context.Entry(ticket).Reference((x) => x.Column).Load();
+		string originalColumnId = ticket.Column.Id;
+
+		Column? column = context.Columns.Find(columnId);
+		if (column is null) return false;
+
+		context.Entry(column).Collection((x) => x.Tickets).Load();
+		int lastPositionInNewColumn = column.Tickets
+			.OrderByDescending((x) => x.Position)
+			.FirstOrDefault()?.Position ?? -1;
+
+		ticket.Column = column;
+		RePositionTickets(originalColumnId, ticket.Position);
+
+		ticket.Position = lastPositionInNewColumn + 1;
+
+		context.SaveChanges();
+
 		return true;
 	}
 
