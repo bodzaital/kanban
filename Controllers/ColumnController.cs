@@ -13,6 +13,9 @@ public class ColumnController(IColumnService columns) : ControllerBase
 	[EndpointSummary("Create a column by specifying a name.")]
 	public ActionResult<ColumnResponse> Create(ColumnRequest request)
 	{
+		if (request.Name is null) return BadRequest("The name must be specified.");
+		if (request.Position is not null) return BadRequest("The position cannot be specified.");
+
 		Column createdColumn = columns.Create(request.Name);
 
 		return Created($"/api/column/{createdColumn.Id}", new ColumnResponse(
@@ -58,5 +61,24 @@ public class ColumnController(IColumnService columns) : ControllerBase
 		];
 
 		return Ok(response);
+	}
+
+	[HttpPatch("{id}")]
+	[EndpointSummary("Update a column.")]
+	public ActionResult<ColumnResponse> Update(string id, [FromBody] ColumnRequest request)
+	{
+		if (request.Position is not null)
+		{
+			bool reorderResult = columns.Reorder(id, request.Position.Value);
+			if (!reorderResult) return NotFound();
+		}
+
+		if (request.Name is not null)
+		{
+			bool renameResult = columns.Rename(id, request.Name);
+			if (!renameResult) return NotFound();
+		}
+
+		return Ok(columns.Get(id));
 	}
 }

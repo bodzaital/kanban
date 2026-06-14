@@ -8,6 +8,8 @@ public interface IColumnService
 	bool Delete(string id);
 	List<Column> GetAllOrdered();
 	Column? Get(string id);
+	bool Reorder(string id, int newPosition);
+	bool Rename(string id, string newName);
 }
 
 public class ColumnService(KanbanContext context) : IColumnService
@@ -57,6 +59,37 @@ public class ColumnService(KanbanContext context) : IColumnService
 		context.Entry(column).Collection((x) => x.Tickets).Load();
 
 		return column;
+	}
+
+	public bool Reorder(string id, int newPosition)
+	{
+		Column? column = context.Columns.Find(id);
+		if (column is null) return false;
+
+		List<Column> columnsAfterExceptThat = [.. context.Columns
+			.Where((x) => x.Position >= newPosition)
+			.Where((x) => x.Id != id)
+		];
+
+		int nextPosition = newPosition + 1;
+
+		columnsAfterExceptThat.ForEach((x) => x.Position = nextPosition++);
+		column.Position = newPosition;
+
+		context.SaveChanges();
+
+		return true;
+	}
+
+	public bool Rename(string id, string newName)
+	{
+		Column? column = context.Columns.Find(id);
+		if (column is null) return false;
+
+		column.Name = newName;
+		context.SaveChanges();
+		
+		return true;
 	}
 
 	private void RePositionColumns(int position)

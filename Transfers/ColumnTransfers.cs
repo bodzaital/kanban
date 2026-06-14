@@ -1,7 +1,8 @@
 namespace Kanban.Transfers;
 
 public record ColumnRequest(
-	string Name
+	string? Name,
+	int? Position
 );
 
 public record ColumnResponse(
