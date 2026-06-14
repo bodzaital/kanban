@@ -74,13 +74,35 @@ public class TicketController(ITicketService tickets) : ControllerBase
 			if (!repositionResult) return NotFound();
 		}
 
+		Ticket ticket = tickets.Get(id)!;
+
+		return Ok(new TicketResponse(
+			ticket.Id,
+			ticket.Number,
+			ticket.Title,
+			ticket.Description,
+			ticket.Column.Id
+		));
+	}
+
+	[HttpPatch("ticket/{id}/column")]
+	public ActionResult<TicketResponse> MoveToColumn(string columnId, string id, [FromBody] TicketRequest request)
+	{
 		if (request.ColumnId is not null)
 		{
 			bool moveResult = tickets.MoveToColumn(id, request.ColumnId);
 			if (!moveResult) return NotFound();
 		}
 
-		return Ok(tickets.Get(id));
+		Ticket ticket = tickets.Get(id)!;
+
+		return Ok(new TicketResponse(
+			ticket.Id,
+			ticket.Number,
+			ticket.Title,
+			ticket.Description,
+			ticket.Column.Id
+		));
 	}
 
 	[HttpDelete("ticket/{id}")]
