@@ -10,6 +10,7 @@ public interface IColumnService
 	OneOf<bool, ErrorBase> Delete(string id);
 	List<Column> GetAllOrdered();
 	OneOf<Column, ErrorBase> Get(string id);
+	OneOf<Column, ErrorBase> Update(string id, string? name, int? position);
 }
 
 public class ColumnService(KanbanContext context) : IColumnService
@@ -61,6 +62,19 @@ public class ColumnService(KanbanContext context) : IColumnService
 		return column;
 	}
 
+	public OneOf<Column, ErrorBase> Update(string id, string? name, int? position)
+	{
+		Column? column = context.Columns.Find(id);
+		if (column is null) return new ColumnNotFound();
+
+		column.Name = name ?? column.Name;
+		
+		if (position is not null) ReorderColumns(column, position.Value);
+
+		context.SaveChanges();
+		return column;
+	}
+
 	private void ShiftColumnsLeftByOne(int nextPosition)
 	{
 		context.Columns
@@ -81,5 +95,26 @@ public class ColumnService(KanbanContext context) : IColumnService
 			.Position;
 		
 		return lastColumnPosition;
+	}
+
+	private void ReorderColumns(Column column, int newPosition)
+	{
+		int oldPosition = column.Position;
+
+		if (oldPosition == newPosition) return;
+
+		if (oldPosition > newPosition) context.Columns
+			.Where((x) => x.Id != column.Id)
+			.Where((x) => x.Position <= oldPosition && x.Position >= newPosition)
+			.OrderBy((x) => x.Position).ToList()
+			.ForEach((x) => x.Position += 1);
+
+		if (oldPosition < newPosition) context.Columns
+			.Where((x) => x.Id != column.Id)
+			.Where((x) => x.Position >= oldPosition && x.Position <= newPosition)
+			.OrderBy((x) => x.Position).ToList()
+			.ForEach((x) => x.Position -= 1);
+
+		column.Position = newPosition;
 	}
 }

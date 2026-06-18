@@ -50,9 +50,14 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 
 	[HttpPatch("{id}")]
 	[EndpointSummary("Update a column")]
-	public ActionResult UpdateColumn(string id, [FromBody] CustomRequestCultureProvider body)
+	public ActionResult UpdateColumn(string id, [FromBody] ColumnUpdateRequest body)
 	{
-		throw new NotImplementedException();
+		OneOf<Column, ErrorBase> result = columns.Update(id, body.Name, body.Position);
+
+		return result.Match(
+			(column) => Ok(column.ToDetailResponse()),
+			Error
+		);
 	}
 
 	[HttpGet]
