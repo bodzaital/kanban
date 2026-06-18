@@ -40,7 +40,7 @@ public class TicketService(KanbanContext context) : ITicketService
 		context.Tickets.Add(ticket);
 		context.SaveChanges();
 
-		return ticket;
+		return Get(ticket.Id);
 	}
 
 	public OneOf<Ticket, ErrorBase> Get(string id)
@@ -49,6 +49,8 @@ public class TicketService(KanbanContext context) : ITicketService
 		if (ticket is null) return new TicketNotFound();
 
 		context.Entry(ticket).Reference((x) => x.Column).Load();
+		context.Entry(ticket).Reference((x) => x.Parent).Load();
+		context.Entry(ticket).Collection((x) => x.Children).Load();
 
 		return ticket;
 	}
@@ -81,7 +83,7 @@ public class TicketService(KanbanContext context) : ITicketService
 		if (position is not null) ReorderTickets(ticket, position.Value);
 
 		context.SaveChanges();
-		return ticket;
+		return Get(id);
 	}
 
 	public OneOf<Ticket, ErrorBase> MoveColumn(string id, string? columnId)
@@ -99,7 +101,7 @@ public class TicketService(KanbanContext context) : ITicketService
 		ticket.Position = GetLastPosition(newColumn) + 1;
 
 		context.SaveChanges();
-		return ticket;
+		return Get(id);
 	}
 
 	public OneOf<Ticket, ErrorBase> SetParent(string id, string? parentId = null)
@@ -107,17 +109,23 @@ public class TicketService(KanbanContext context) : ITicketService
 		Ticket? ticket = context.Tickets.Find(id);
 		if (ticket is null) return new TicketNotFound();
 
+		context.Entry(ticket).Reference((x) => x.Parent).Load();
+
 		if (parentId is null)
 		{
 			ticket.Parent = null;
-			return ticket;
+			context.SaveChanges();
+			
+			return Get(id);
 		}
 
 		Ticket? parentTicket = context.Tickets.Find(parentId);
 		if (parentTicket is null) return new ParentTicketNotFound();
 
 		ticket.Parent = parentTicket;
-		return ticket;
+		context.SaveChanges();
+
+		return Get(id);
 	}
 
 	public OneOf<Ticket, ErrorBase> SetChild(string id, string childId, bool delete = false)
@@ -125,20 +133,26 @@ public class TicketService(KanbanContext context) : ITicketService
 		Ticket? ticket = context.Tickets.Find(id);
 		if (ticket is null) return new TicketNotFound();
 
+		context.Entry(ticket).Collection((x) => x.Children).Load();
+
 		Ticket? childTicket = context.Tickets.Find(childId);
 		if (childTicket is null) return new ChildTicketNotFound();
 
 		if (!delete)
 		{
 			ticket.Children.Add(childTicket);
-			return ticket;
+			context.SaveChanges();
+
+			return Get(id);
 		}
 
 		bool isParentOfChild = ticket.Children.Contains(childTicket);
 		if (!isParentOfChild) return new TicketNotParentOfChild();
 
 		ticket.Children.Remove(childTicket);
-		return ticket;
+		context.SaveChanges();
+
+		return Get(id);
 	}
 
 	private void ReorderTickets(Ticket ticket, int newPosition)
