@@ -1,3 +1,4 @@
+using System.IO.Pipes;
 using Kanban.Context;
 using Kanban.Data;
 using OneOf;
@@ -9,6 +10,10 @@ public interface ITicketService
 	OneOf<Ticket, ErrorBase> Create(string title, string? description, string columnId);
 	OneOf<Ticket, ErrorBase> Get(string id);
 	OneOf<bool, ErrorBase> Delete(string id);
+	OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description);
+	OneOf<Ticket, ErrorBase> MoveColumn(string id, string? columnId);
+	OneOf<Ticket, ErrorBase> SetParent(string id, string? parentId = null);
+	OneOf<Ticket, ErrorBase> SetChild(string id, string childId, bool delete = false);
 }
 
 public class TicketService(KanbanContext context) : ITicketService
@@ -61,6 +66,102 @@ public class TicketService(KanbanContext context) : ITicketService
 
 		context.SaveChanges();
 		return true;
+	}
+
+	public OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description)
+	{
+		Ticket? ticket = context.Tickets.Find(id);
+		if (ticket is null) return new TicketNotFound();
+
+		context.Entry(ticket).Reference((x) => x.Column).Load();
+
+		ticket.Title = title ?? ticket.Title;
+		ticket.Description = description ?? ticket.Description;
+
+		if (position is not null) ReorderTickets(ticket, position.Value);
+
+		context.SaveChanges();
+		return ticket;
+	}
+
+	public OneOf<Ticket, ErrorBase> MoveColumn(string id, string? columnId)
+	{
+		Ticket? ticket = context.Tickets.Find(id);
+		if (ticket is null) return new TicketNotFound();
+
+		Column? newColumn = context.Columns.Find(columnId);
+		if (newColumn is null) return new ColumnNotFound();
+
+		Column originalColumn = ticket.Column;
+		ticket.Column = newColumn;
+
+		ShiftTicketsUpByOne(originalColumn, ticket.Position);
+		ticket.Position = GetLastPosition(newColumn) + 1;
+
+		context.SaveChanges();
+		return ticket;
+	}
+
+	public OneOf<Ticket, ErrorBase> SetParent(string id, string? parentId = null)
+	{
+		Ticket? ticket = context.Tickets.Find(id);
+		if (ticket is null) return new TicketNotFound();
+
+		if (parentId is null)
+		{
+			ticket.Parent = null;
+			return ticket;
+		}
+
+		Ticket? parentTicket = context.Tickets.Find(parentId);
+		if (parentTicket is null) return new ParentTicketNotFound();
+
+		ticket.Parent = parentTicket;
+		return ticket;
+	}
+
+	public OneOf<Ticket, ErrorBase> SetChild(string id, string childId, bool delete = false)
+	{
+		Ticket? ticket = context.Tickets.Find(id);
+		if (ticket is null) return new TicketNotFound();
+
+		Ticket? childTicket = context.Tickets.Find(childId);
+		if (childTicket is null) return new ChildTicketNotFound();
+
+		if (!delete)
+		{
+			ticket.Children.Add(childTicket);
+			return ticket;
+		}
+
+		bool isParentOfChild = ticket.Children.Contains(childTicket);
+		if (!isParentOfChild) return new TicketNotParentOfChild();
+
+		ticket.Children.Remove(childTicket);
+		return ticket;
+	}
+
+	private void ReorderTickets(Ticket ticket, int newPosition)
+	{
+		int oldPosition = ticket.Position;
+
+		if (oldPosition == newPosition) return;
+
+		context.Entry(ticket.Column).Collection((x) => x.Tickets).Load();
+
+		if (oldPosition > newPosition) ticket.Column.Tickets
+			.Where((x) => x.Id != ticket.Id)
+			.Where((x) => x.Position <= oldPosition && x.Position >= newPosition)
+			.OrderBy((x) => x.Position).ToList()
+			.ForEach((x) => x.Position += 1);
+
+		if (oldPosition < newPosition) ticket.Column.Tickets
+			.Where((x) => x.Id != ticket.Id)
+			.Where((x) => x.Position >= oldPosition && x.Position <= newPosition)
+			.OrderBy((x) => x.Position).ToList()
+			.ForEach((x) => x.Position -= 1);
+
+		ticket.Position = newPosition;
 	}
 
 	private void ShiftTicketsUpByOne(Column column, int nextPosition)

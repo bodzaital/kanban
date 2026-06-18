@@ -9,9 +9,11 @@ public record TicketUpdateRequest(
 	int? Position,
 	string? Title,
 	string? Description,
-	string? ColumnId,
-	string? ParentId,
-	string? ChildId
+	string? ColumnId
+);
+
+public record TicketStructureRequest(
+	string Id
 );
 
 public record TicketSimpleResponse(
