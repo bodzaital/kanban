@@ -10,19 +10,13 @@ public interface IColumnService
 	OneOf<bool, ErrorBase> Delete(string id);
 	List<Column> GetAllOrdered();
 	OneOf<Column, ErrorBase> Get(string id);
-	OneOf<Column, ErrorBase> Reorder(string id, int newPosition);
-	OneOf<Column, ErrorBase> Rename(string id, string newName);
 }
 
 public class ColumnService(KanbanContext context) : IColumnService
 {
 	public Column Create(string name)
 	{
-		int? lastPosition = context.Columns
-			.OrderByDescending((x) => x.Position)
-			.FirstOrDefault()?.Position;
-
-		int nextPosition = (lastPosition ?? -1) + 1;
+		int nextPosition = GetLastPosition() + 1;
 
 		Column column = new()
 		{
@@ -40,9 +34,13 @@ public class ColumnService(KanbanContext context) : IColumnService
 	{
 		Column? column = context.Columns.Find(id);
 		if (column is null) return new ColumnNotFound();
+
+		context.Entry(column).Collection((x) => x.Tickets).Load();
+
+		if (column.Tickets.Count > 0) return new ColumnHasTickets();
 		
 		context.Columns.Remove(column);
-		RePositionColumns(column.Position);
+		ShiftColumnsLeftByOne(column.Position);
 		
 		context.SaveChanges();
 		return true;
@@ -63,40 +61,25 @@ public class ColumnService(KanbanContext context) : IColumnService
 		return column;
 	}
 
-	public OneOf<Column, ErrorBase> Reorder(string id, int newPosition)
+	private void ShiftColumnsLeftByOne(int nextPosition)
 	{
-		Column? column = context.Columns.Find(id);
-		if (column is null) return new ColumnNotFound();
-
-		List<Column> columnsAfterExceptThat = [.. context.Columns
-			.Where((x) => x.Position >= newPosition)
-			.Where((x) => x.Id != id)
-		];
-
-		int nextPosition = newPosition + 1;
-
-		columnsAfterExceptThat.ForEach((x) => x.Position = nextPosition++);
-		column.Position = newPosition;
-
-		context.SaveChanges();
-
-		return column;
+		context.Columns
+			.Where((x) => x.Position > nextPosition)
+			.OrderBy((x) => x.Position)
+			.ToList().ForEach((x) => x.Position = nextPosition++);
 	}
 
-	public OneOf<Column, ErrorBase> Rename(string id, string newName)
+	private int GetLastPosition()
 	{
-		Column? column = context.Columns.Find(id);
-		if (column is null) return new ColumnNotFound();
+		bool hasColumns = context.Columns.Any();
 
-		column.Name = newName;
-		context.SaveChanges();
+		if (!hasColumns) return -1;
+
+		int lastColumnPosition = context.Columns
+			.OrderBy((x) => x.Position)
+			.Last()
+			.Position;
 		
-		return column;
-	}
-
-	private void RePositionColumns(int position)
-	{
-		List<Column> columnsAfter = [.. context.Columns.Where((x) => x.Position > position)];
-		columnsAfter.ForEach((x) => x.Position = position++);
+		return lastColumnPosition;
 	}
 }

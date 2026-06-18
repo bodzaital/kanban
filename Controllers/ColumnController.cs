@@ -74,8 +74,8 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 	[EndpointSummary("Get tickets ordered by position")]
 	public ActionResult GetTicketsOrdered(string id)
 	{
-		List<Ticket> result = tickets.GetAllOrdered(id);
+		OneOf<List<Ticket>, ErrorBase> result = tickets.GetAllOrdered(id);
 
-		return Ok(result);
+		return result.Match(Ok, Error);
 	}
 }
