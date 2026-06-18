@@ -12,4 +12,22 @@ public class Ticket
 	public required Column Column { get; set; }
 	public Ticket? Parent { get; set; } = null;
 	public List<Ticket> Children { get; set; } = [];
+
+	public TicketSimpleResponse ToSimpleResponse() => new(
+		Id,
+		Position,
+		Title,
+		Number
+	);
+
+	public TicketDetailResponse ToDetailResponse() => new(
+		Id,
+		Number,
+		Position,
+		Title,
+		Description,
+		Column.Id,
+		Parent?.Id,
+		[.. Children.Select((x) => x.ToSimpleResponse())]
+	);
 }

@@ -8,4 +8,17 @@ public class Column
 	public required string Name { get; set; }
 	public required int Position { get; set; }
 	public ICollection<Ticket> Tickets { get; set; } = [];
+
+	public ColumnSimpleResponse ToSimpleResponse() => new(
+		Id,
+		Name,
+		Position
+	);
+
+	public ColumnDetailResponse ToDetailResponse() => new(
+		Id,
+		Name,
+		Position,
+		[.. Tickets.OrderBy((x) => x.Position).Select((x) => x.ToSimpleResponse())]
+	);
 }

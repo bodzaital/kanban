@@ -13,3 +13,21 @@ public record TicketUpdateRequest(
 	string? ParentId,
 	string? ChildId
 );
+
+public record TicketSimpleResponse(
+	string Id,
+	int Position,
+	string Title,
+	int Number
+);
+
+public record TicketDetailResponse(
+	string Id,
+	int Number,
+	int Position,
+	string Title,
+	string Description,
+	string ColumnId,
+	string? ParentId,
+	List<TicketSimpleResponse> Children
+);

@@ -18,7 +18,10 @@ public class TicketController(ITicketService tickets) : ControllerParent
 	{
 		OneOf<bool, ErrorBase> result = tickets.Delete(id);
 
-		return result.Match((_) => NoContent(), Error);
+		return result.Match(
+			(_) => NoContent(),
+			Error
+		);
 	}
 
 	[HttpPatch("{id}")]
@@ -34,6 +37,9 @@ public class TicketController(ITicketService tickets) : ControllerParent
 	{
 		OneOf<Ticket, ErrorBase> result = tickets.Get(id);
 
-		return result.Match(Ok, Error);
+		return result.Match(
+			(ticket) => Ok(ticket.ToDetailResponse()),
+			Error
+		);
 	}
 }

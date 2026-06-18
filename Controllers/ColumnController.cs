@@ -19,7 +19,7 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 		OneOf<Column, ErrorBase> result = columns.Create(body.Name);
 
 		return result.Match(
-			(x) => Created($"/api/column/{x.Id}", x),
+			(column) => Created($"/api/column/{column.Id}", column.ToSimpleResponse()),
 			Error
 		);
 	}
@@ -30,7 +30,10 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 	{
 		OneOf<bool, ErrorBase> result = columns.Delete(id);
 
-		return result.Match((_) => NoContent(), Error);
+		return result.Match(
+			(_) => NoContent(),
+			Error
+		);
 	}
 
 	[HttpPost("{id}/ticket")]
@@ -40,7 +43,7 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 		OneOf<Ticket, ErrorBase> result = tickets.Create(body.Title, body.Description, id);
 
 		return result.Match(
-			(x) => Created($"/api/ticket/{x.Id}", x),
+			(ticket) => Created($"/api/ticket/{ticket.Id}", ticket.ToSimpleResponse()),
 			Error
 		);
 	}
@@ -58,7 +61,7 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 	{
 		List<Column> result = columns.GetAllOrdered();
 
-		return Ok(result);
+		return Ok(result.Select((column) => column.ToSimpleResponse()).ToList());
 	}
 
 	[HttpGet("{id}")]
@@ -67,15 +70,9 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 	{
 		OneOf<Column, ErrorBase> result = columns.Get(id);
 
-		return result.Match(Ok, Error);
-	}
-
-	[HttpGet("{id}/ticket")]
-	[EndpointSummary("Get tickets ordered by position")]
-	public ActionResult GetTicketsOrdered(string id)
-	{
-		OneOf<List<Ticket>, ErrorBase> result = tickets.GetAllOrdered(id);
-
-		return result.Match(Ok, Error);
+		return result.Match(
+			(column) => Ok(column.ToDetailResponse()),
+			Error
+		);
 	}
 }

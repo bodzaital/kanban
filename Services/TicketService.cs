@@ -9,7 +9,6 @@ public interface ITicketService
 	OneOf<Ticket, ErrorBase> Create(string title, string? description, string columnId);
 	OneOf<Ticket, ErrorBase> Get(string id);
 	OneOf<bool, ErrorBase> Delete(string id);
-	OneOf<List<Ticket>, ErrorBase> GetAllOrdered(string columnId);
 }
 
 public class TicketService(KanbanContext context) : ITicketService
@@ -62,16 +61,6 @@ public class TicketService(KanbanContext context) : ITicketService
 
 		context.SaveChanges();
 		return true;
-	}
-
-	public OneOf<List<Ticket>, ErrorBase> GetAllOrdered(string columnId)
-	{
-		Column? column = context.Columns.Find(columnId);
-		if (column is null) return new ColumnNotFound();
-
-		context.Entry(column).Collection((x) => x.Tickets).Load();
-
-		return context.Tickets.OrderBy((x) => x.Position).ToList();
 	}
 
 	private void ShiftTicketsUpByOne(Column column, int nextPosition)
