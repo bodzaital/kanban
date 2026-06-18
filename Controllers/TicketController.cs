@@ -14,9 +14,9 @@ public class TicketController(ITicketService tickets) : ControllerParent
 {
 	[HttpDelete("{id}")]
 	[EndpointSummary("Delete a ticket")]
-	public ActionResult DeleteTicket(string id)
+	public ActionResult DeleteTicket(string id, [FromQuery] bool cascade = false)
 	{
-		OneOf<bool, ErrorBase> result = tickets.Delete(id);
+		OneOf<bool, ErrorBase> result = tickets.Delete(id, cascade);
 
 		return result.Match(
 			(_) => NoContent(),

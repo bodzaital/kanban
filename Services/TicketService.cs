@@ -2,6 +2,7 @@ using System.IO.Pipes;
 using Kanban.Context;
 using Kanban.Data;
 using OneOf;
+using SQLitePCL;
 
 namespace Kanban.Services;
 
@@ -9,7 +10,7 @@ public interface ITicketService
 {
 	OneOf<Ticket, ErrorBase> Create(string title, string? description, string columnId);
 	OneOf<Ticket, ErrorBase> Get(string id);
-	OneOf<bool, ErrorBase> Delete(string id);
+	OneOf<bool, ErrorBase> Delete(string id, bool cascade);
 	OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description);
 	OneOf<Ticket, ErrorBase> MoveColumn(string id, string? columnId);
 	OneOf<Ticket, ErrorBase> SetParent(string id, string? parentId = null);
@@ -55,13 +56,17 @@ public class TicketService(KanbanContext context) : ITicketService
 		return ticket;
 	}
 
-	public OneOf<bool, ErrorBase> Delete(string id)
+	public OneOf<bool, ErrorBase> Delete(string id, bool cascade)
 	{
 		Ticket? ticket = context.Tickets.Find(id);
 		if (ticket is null) return new TicketNotFound();
 
 		context.Entry(ticket).Reference((x) => x.Column).Load();
+		context.Entry(ticket).Collection((x) => x.Children).Load();
 
+		ticket.Children.ForEach((x) => Delete(x.Id, cascade));
+		
+		ticket.Parent = null;
 		context.Tickets.Remove(ticket);
 
 		ShiftTicketsUpByOne(ticket.Column, ticket.Position);
