@@ -1,7 +1,8 @@
 namespace Kanban.Transfers;
 
 public record TicketCreateRequest(
-	string Title
+	string Title,
+	string? Description
 );
 
 public record TicketUpdateRequest(

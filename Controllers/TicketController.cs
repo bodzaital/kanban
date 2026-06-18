@@ -16,7 +16,9 @@ public class TicketController(ITicketService tickets) : ControllerParent
 	[EndpointSummary("Delete a ticket")]
 	public ActionResult DeleteTicket(string id)
 	{
-		throw new NotImplementedException();
+		OneOf<bool, ErrorBase> result = tickets.Delete(id);
+
+		return result.Match((_) => NoContent(), Error);
 	}
 
 	[HttpPatch("{id}")]
@@ -30,6 +32,8 @@ public class TicketController(ITicketService tickets) : ControllerParent
 	[EndpointSummary("Get a ticket")]
 	public ActionResult GetTicket(string id)
 	{
-		throw new NotImplementedException();
+		OneOf<Ticket, ErrorBase> result = tickets.Get(id);
+
+		return result.Match(Ok, Error);
 	}
 }

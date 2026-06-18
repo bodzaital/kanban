@@ -6,21 +6,24 @@ namespace Kanban.Services;
 
 public interface ITicketService
 {
-	OneOf<Ticket, ErrorBase> Create(string title, string description, string columnId);
+	OneOf<Ticket, ErrorBase> Create(string title, string? description, string columnId);
 	OneOf<Ticket, ErrorBase> Get(string id);
 	OneOf<bool, ErrorBase> Delete(string id);
 	OneOf<bool, ErrorBase> Reorder(string id, int newPosition);
 	OneOf<bool, ErrorBase> Retitle(string id, string newTitle);
 	OneOf<bool, ErrorBase> UpdateDescription(string id, string newDescription);
 	OneOf<bool, ErrorBase> MoveToColumn(string id, string columnId);
+	List<Ticket> GetAllOrdered(string columnId);
 }
 
 public class TicketService(KanbanContext context) : ITicketService
 {
-	public OneOf<Ticket, ErrorBase> Create(string title, string description, string columnId)
+	public OneOf<Ticket, ErrorBase> Create(string title, string? description, string columnId)
 	{
 		Column? column = context.Columns.Find(columnId);
 		if (column is null) return new ColumnNotFound();
+
+		description ??= "";
 		
 		context.Entry(column).Collection((x) => x.Tickets).Load();
 
@@ -139,6 +142,11 @@ public class TicketService(KanbanContext context) : ITicketService
 		context.SaveChanges();
 
 		return true;
+	}
+
+	public List<Ticket> GetAllOrdered(string columnId)
+	{
+		throw new NotImplementedException();
 	}
 
 	private void RePositionTickets(string columnId, int position)

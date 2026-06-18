@@ -16,21 +16,33 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 	[EndpointSummary("Create a column")]
 	public ActionResult CreateColumn([FromBody] ColumnCreateRequest body)
 	{
-		throw new NotImplementedException();
+		OneOf<Column, ErrorBase> result = columns.Create(body.Name);
+
+		return result.Match(
+			(x) => Created($"/api/column/{x.Id}", x),
+			Error
+		);
 	}
 
 	[HttpDelete("{id}")]
 	[EndpointSummary("Delete a column")]
 	public ActionResult DeleteColumn(string id)
 	{
-		throw new NotImplementedException();
+		OneOf<bool, ErrorBase> result = columns.Delete(id);
+
+		return result.Match((_) => NoContent(), Error);
 	}
 
 	[HttpPost("{id}/ticket")]
 	[EndpointSummary("Create a ticket in a column")]
 	public ActionResult CreateTicketInColumn(string id, [FromBody] TicketCreateRequest body)
 	{
-		throw new NotImplementedException();
+		OneOf<Ticket, ErrorBase> result = tickets.Create(body.Title, body.Description, id);
+
+		return result.Match(
+			(x) => Created($"/api/ticket/{x.Id}", x),
+			Error
+		);
 	}
 
 	[HttpPatch("{id}")]
@@ -44,20 +56,26 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 	[EndpointSummary("Get columns ordered by position")]
 	public ActionResult GetColumnsOrdered()
 	{
-		throw new NotImplementedException();
+		List<Column> result = columns.GetAllOrdered();
+
+		return Ok(result);
 	}
 
 	[HttpGet("{id}")]
 	[EndpointSummary("Get a column")]
 	public ActionResult GetColumn(string id)
 	{
-		throw new NotImplementedException();
+		OneOf<Column, ErrorBase> result = columns.Get(id);
+
+		return result.Match(Ok, Error);
 	}
 
 	[HttpGet("{id}/ticket")]
 	[EndpointSummary("Get tickets ordered by position")]
 	public ActionResult GetTicketsOrdered(string id)
 	{
-		throw new NotImplementedException();
+		List<Ticket> result = tickets.GetAllOrdered(id);
+
+		return Ok(result);
 	}
 }
