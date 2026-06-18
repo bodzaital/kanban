@@ -28,6 +28,6 @@ public class Ticket
 		Description,
 		Column.Id,
 		Parent?.Id,
-		[.. Children.Select((x) => x.ToSimpleResponse())]
+		[.. Children.Select((x) => x.Id)]
 	);
 }

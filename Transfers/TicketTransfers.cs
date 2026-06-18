@@ -31,5 +31,5 @@ public record TicketDetailResponse(
 	string Description,
 	string ColumnId,
 	string? ParentId,
-	List<TicketSimpleResponse> Children
+	List<string> ChildIds
 );
