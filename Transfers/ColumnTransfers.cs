@@ -1,21 +1,10 @@
 namespace Kanban.Transfers;
 
-public record ColumnRequest(
+public record ColumnCreateRequest(
+	string Name
+);
+
+public record ColumnUpdateRequest(
 	string? Name,
 	int? Position
-);
-
-public record ColumnResponse(
-	string Id,
-	string Name,
-	int Position,
-	List<string> TicketIds
-);
-
-public record ColumnPositionRequest(
-	int Position
-);
-
-public record ColumnNameRequest(
-	string Name
 );

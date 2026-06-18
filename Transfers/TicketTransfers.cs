@@ -1,17 +1,14 @@
 namespace Kanban.Transfers;
 
-public record TicketRequest(
-	string? Title,
-	string? Description,
-	int? Position,
-	string? ColumnId
+public record TicketCreateRequest(
+	string Title
 );
 
-public record TicketResponse(
-	string Id,
-	int Number,
-	int Position,
-	string Title,
-	string Description,
-	string ColumnId
+public record TicketUpdateRequest(
+	int? Position,
+	string? Title,
+	string? Description,
+	string? ColumnId,
+	string? ParentId,
+	string? ChildId
 );

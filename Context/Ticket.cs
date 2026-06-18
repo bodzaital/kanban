@@ -10,13 +10,6 @@ public class Ticket
 	public required string Title { get; set; }
 	public required string Description { get; set; }
 	public required Column Column { get; set; }
-
-	public TicketResponse ToResponse() => new(
-		Id,
-		Number,
-		Position,
-		Title,
-		Description,
-		Column.Id
-	);
+	public Ticket? Parent { get; set; } = null;
+	public List<Ticket> Children { get; set; } = [];
 }
