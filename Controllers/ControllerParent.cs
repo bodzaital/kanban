@@ -7,6 +7,6 @@ public abstract class ControllerParent : ControllerBase
 {
 	protected ActionResult Error(ErrorBase value)
 	{
-		return StatusCode((int)value.StatusCode, value.GetType());
+		return StatusCode((int)value.StatusCode, value.GetType().Name);
 	}
 }
