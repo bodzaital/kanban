@@ -20,12 +20,12 @@ public record TicketSimpleResponse(
 	string Id,
 	int Position,
 	string Title,
-	int Number
+	string Number
 );
 
 public record TicketDetailResponse(
 	string Id,
-	int Number,
+	string Number,
 	int Position,
 	string Title,
 	string Description,

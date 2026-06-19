@@ -13,16 +13,16 @@ public class Ticket
 	public Ticket? Parent { get; set; } = null;
 	public List<Ticket> Children { get; set; } = [];
 
-	public TicketSimpleResponse ToSimpleResponse() => new(
+	public TicketSimpleResponse ToSimpleResponse(string prefix) => new(
 		Id,
 		Position,
 		Title,
-		Number
+		GetNumberWithPrefix(prefix)
 	);
 
-	public TicketDetailResponse ToDetailResponse() => new(
+	public TicketDetailResponse ToDetailResponse(string prefix) => new(
 		Id,
-		Number,
+		GetNumberWithPrefix(prefix),
 		Position,
 		Title,
 		Description,
@@ -30,4 +30,6 @@ public class Ticket
 		Parent?.Id,
 		[.. Children.Select((x) => x.Id)]
 	);
+
+	private string GetNumberWithPrefix(string prefix) => $"{prefix}-{Number}";
 }

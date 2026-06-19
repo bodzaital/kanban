@@ -10,8 +10,10 @@ namespace Kanban.Controllers;
 
 [ApiController]
 [Route("/api/column")]
-public class ColumnController(IColumnService columns, ITicketService tickets) : ControllerParent
+public class ColumnController(IColumnService columns, ITicketService tickets, IConfiguration configuration) : ControllerParent
 {
+	private readonly string _ticketPrefix = configuration.GetValue<string>("TicketPrefix")!;
+
 	[HttpPost]
 	[EndpointSummary("Create a column")]
 	public ActionResult CreateColumn([FromBody] ColumnCreateRequest body)
@@ -43,7 +45,7 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 		OneOf<Ticket, ErrorBase> result = tickets.Create(body.Title, body.Description, id);
 
 		return result.Match(
-			(ticket) => Created($"/api/ticket/{ticket.Id}", ticket.ToSimpleResponse()),
+			(ticket) => Created($"/api/ticket/{ticket.Id}", ticket.ToSimpleResponse(_ticketPrefix)),
 			Error
 		);
 	}

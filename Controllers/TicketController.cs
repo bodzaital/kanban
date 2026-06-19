@@ -10,8 +10,10 @@ namespace Kanban.Controllers;
 
 [ApiController]
 [Route("/api/ticket")]
-public class TicketController(ITicketService tickets) : ControllerParent
+public class TicketController(ITicketService tickets, IConfiguration configuration) : ControllerParent
 {
+	private readonly string _ticketPrefix = configuration.GetValue<string>("TicketPrefix")!;
+
 	[HttpDelete("{id}")]
 	[EndpointSummary("Delete a ticket")]
 	public ActionResult DeleteTicket(string id, [FromQuery] bool cascade = false)
@@ -31,7 +33,7 @@ public class TicketController(ITicketService tickets) : ControllerParent
 		OneOf<Ticket, ErrorBase> result = tickets.Update(id, body.Position, body.Title, body.Description);
 
 		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse()),
+			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
 			Error
 		);
 	}
@@ -43,7 +45,7 @@ public class TicketController(ITicketService tickets) : ControllerParent
 		OneOf<Ticket, ErrorBase> result = tickets.SetParent(id, body.Id);
 
 		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse()),
+			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
 			Error
 		);
 	}
@@ -55,7 +57,7 @@ public class TicketController(ITicketService tickets) : ControllerParent
 		OneOf<Ticket, ErrorBase> result = tickets.SetParent(id);
 
 		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse()),
+			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
 			Error
 		);
 	}
@@ -67,7 +69,7 @@ public class TicketController(ITicketService tickets) : ControllerParent
 		OneOf<Ticket, ErrorBase> result = tickets.SetChild(id, body.Id);
 
 		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse()),
+			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
 			Error
 		);
 	}
@@ -79,7 +81,7 @@ public class TicketController(ITicketService tickets) : ControllerParent
 		OneOf<Ticket, ErrorBase> result = tickets.SetChild(id, body.Id, true);
 
 		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse()),
+			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
 			Error
 		);
 	}
@@ -91,7 +93,7 @@ public class TicketController(ITicketService tickets) : ControllerParent
 		OneOf<Ticket, ErrorBase> result = tickets.Get(id);
 
 		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse()),
+			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
 			Error
 		);
 	}
