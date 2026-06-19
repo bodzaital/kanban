@@ -19,5 +19,5 @@ public record ColumnDetailResponse(
 	string Id,
 	string Name,
 	int Position,
-	List<TicketSimpleResponse> Tickets
+	List<string> Tickets
 );

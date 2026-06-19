@@ -19,6 +19,6 @@ public class Column
 		Id,
 		Name,
 		Position,
-		[.. Tickets.OrderBy((x) => x.Position).Select((x) => x.ToSimpleResponse())]
+		[.. Tickets.OrderBy((x) => x.Position).Select((x) => x.Id)]
 	);
 }
