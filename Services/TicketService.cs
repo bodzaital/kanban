@@ -64,7 +64,10 @@ public class TicketService(KanbanContext context) : ITicketService
 		context.Entry(ticket).Reference((x) => x.Column).Load();
 		context.Entry(ticket).Collection((x) => x.Children).Load();
 
-		ticket.Children.ForEach((x) => Delete(x.Id, cascade));
+		if (cascade) for (int i = 0; i < ticket.Children.Count; i++)
+		{
+			Delete(ticket.Children[i].Id, cascade);
+		}
 		
 		ticket.Parent = null;
 		context.Tickets.Remove(ticket);
