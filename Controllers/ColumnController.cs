@@ -26,9 +26,9 @@ public class ColumnController(IColumnService columns, ITicketService tickets) : 
 
 	[HttpDelete("{id}")]
 	[EndpointSummary("Delete a column")]
-	public ActionResult DeleteColumn(string id)
+	public ActionResult DeleteColumn(string id, [FromQuery(Name = "moveTo")] string newColumnId)
 	{
-		OneOf<bool, ErrorBase> result = columns.Delete(id);
+		OneOf<bool, ErrorBase> result = columns.Delete(id, newColumnId);
 
 		return result.Match(
 			(_) => NoContent(),

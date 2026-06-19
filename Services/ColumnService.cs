@@ -7,13 +7,13 @@ namespace Kanban.Services;
 public interface IColumnService
 {
 	Column Create(string name);
-	OneOf<bool, ErrorBase> Delete(string id);
+	OneOf<bool, ErrorBase> Delete(string id, string newColumnId);
 	List<Column> GetAllOrdered();
 	OneOf<Column, ErrorBase> Get(string id);
 	OneOf<Column, ErrorBase> Update(string id, string? name, int? position);
 }
 
-public class ColumnService(KanbanContext context) : IColumnService
+public class ColumnService(KanbanContext context, TicketService tickets) : IColumnService
 {
 	public Column Create(string name)
 	{
@@ -31,15 +31,15 @@ public class ColumnService(KanbanContext context) : IColumnService
 		return column;
 	}
 
-	public OneOf<bool, ErrorBase> Delete(string id)
+	public OneOf<bool, ErrorBase> Delete(string id, string newColumnId)
 	{
 		Column? column = context.Columns.Find(id);
 		if (column is null) return new ColumnNotFound();
 
 		context.Entry(column).Collection((x) => x.Tickets).Load();
 
-		if (column.Tickets.Count > 0) return new ColumnHasTickets();
-		
+		column.Tickets.ToList().ForEach((x) => tickets.MoveColumn(x.Id, newColumnId));
+
 		context.Columns.Remove(column);
 		ShiftColumnsLeftByOne(column.Position);
 		
