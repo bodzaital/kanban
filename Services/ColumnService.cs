@@ -13,7 +13,7 @@ public interface IColumnService
 	OneOf<Column, ErrorBase> Update(string id, string? name, int? position);
 }
 
-public class ColumnService(KanbanContext context, TicketService tickets) : IColumnService
+public class ColumnService(KanbanContext context, ITicketService tickets) : IColumnService
 {
 	public Column Create(string name)
 	{

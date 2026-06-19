@@ -17,7 +17,7 @@ public interface ITicketService
 	OneOf<Ticket, ErrorBase> SetChild(string id, string childId, bool delete = false);
 }
 
-public class TicketService(KanbanContext context) : ITicketService
+public class TicketService(KanbanContext context, IMetadataService metadata) : ITicketService
 {
 	public OneOf<Ticket, ErrorBase> Create(string title, string? description, string columnId)
 	{
@@ -27,7 +27,7 @@ public class TicketService(KanbanContext context) : ITicketService
 		context.Entry(column).Collection((x) => x.Tickets).Load();
 
 		int nextPosition = GetLastPosition(column) + 1;
-		int nextNumber = GetLastNumber() + 1;
+		int nextNumber = ++metadata.LastNumber;
 
 		Ticket ticket = new()
 		{
@@ -207,18 +207,5 @@ public class TicketService(KanbanContext context) : ITicketService
 			.Position;
 
 		return lastTicketPosition;
-	}
-
-	private int GetLastNumber()
-	{
-		bool hasTickets = context.Tickets.Any();
-		if (!hasTickets) return -1;
-
-		int lastTicketNumber = context.Tickets
-			.OrderBy((x) => x.Number)
-			.Last()
-			.Number;
-
-		return lastTicketNumber;
 	}
 }
