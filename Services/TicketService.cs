@@ -10,11 +10,9 @@ public interface ITicketService
 {
 	OneOf<Ticket, ErrorBase> Create(string title, string? description, string columnId);
 	OneOf<Ticket, ErrorBase> Get(string id);
-	OneOf<bool, ErrorBase> Delete(string id, bool cascade);
+	OneOf<bool, ErrorBase> Delete(string id);
 	OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description);
 	OneOf<Ticket, ErrorBase> MoveColumn(string id, string? columnId);
-	OneOf<Ticket, ErrorBase> SetParent(string id, string? parentId = null);
-	OneOf<Ticket, ErrorBase> SetChild(string id, string childId, bool delete = false);
 }
 
 public class TicketService(KanbanContext context, IMetadataService metadata) : ITicketService
@@ -50,26 +48,17 @@ public class TicketService(KanbanContext context, IMetadataService metadata) : I
 		if (ticket is null) return new TicketNotFound();
 
 		context.Entry(ticket).Reference((x) => x.Column).Load();
-		context.Entry(ticket).Reference((x) => x.Parent).Load();
-		context.Entry(ticket).Collection((x) => x.Children).Load();
 
 		return ticket;
 	}
 
-	public OneOf<bool, ErrorBase> Delete(string id, bool cascade)
+	public OneOf<bool, ErrorBase> Delete(string id)
 	{
 		Ticket? ticket = context.Tickets.Find(id);
 		if (ticket is null) return new TicketNotFound();
 
 		context.Entry(ticket).Reference((x) => x.Column).Load();
-		context.Entry(ticket).Collection((x) => x.Children).Load();
-
-		if (cascade) for (int i = 0; i < ticket.Children.Count; i++)
-		{
-			Delete(ticket.Children[i].Id, cascade);
-		}
 		
-		ticket.Parent = null;
 		context.Tickets.Remove(ticket);
 
 		ShiftTicketsUpByOne(ticket.Column, ticket.Position);
@@ -109,57 +98,6 @@ public class TicketService(KanbanContext context, IMetadataService metadata) : I
 		ticket.Position = GetLastPosition(newColumn) + 1;
 
 		context.SaveChanges();
-		return Get(id);
-	}
-
-	public OneOf<Ticket, ErrorBase> SetParent(string id, string? parentId = null)
-	{
-		Ticket? ticket = context.Tickets.Find(id);
-		if (ticket is null) return new TicketNotFound();
-
-		context.Entry(ticket).Reference((x) => x.Parent).Load();
-
-		if (parentId is null)
-		{
-			ticket.Parent = null;
-			context.SaveChanges();
-			
-			return Get(id);
-		}
-
-		Ticket? parentTicket = context.Tickets.Find(parentId);
-		if (parentTicket is null) return new ParentTicketNotFound();
-
-		ticket.Parent = parentTicket;
-		context.SaveChanges();
-
-		return Get(id);
-	}
-
-	public OneOf<Ticket, ErrorBase> SetChild(string id, string childId, bool delete = false)
-	{
-		Ticket? ticket = context.Tickets.Find(id);
-		if (ticket is null) return new TicketNotFound();
-
-		context.Entry(ticket).Collection((x) => x.Children).Load();
-
-		Ticket? childTicket = context.Tickets.Find(childId);
-		if (childTicket is null) return new ChildTicketNotFound();
-
-		if (!delete)
-		{
-			ticket.Children.Add(childTicket);
-			context.SaveChanges();
-
-			return Get(id);
-		}
-
-		bool isParentOfChild = ticket.Children.Contains(childTicket);
-		if (!isParentOfChild) return new TicketNotParentOfChild();
-
-		ticket.Children.Remove(childTicket);
-		context.SaveChanges();
-
 		return Get(id);
 	}
 

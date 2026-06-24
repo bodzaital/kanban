@@ -16,9 +16,9 @@ public class TicketController(ITicketService tickets, IConfiguration configurati
 
 	[HttpDelete("{id}")]
 	[EndpointSummary("Delete a ticket")]
-	public ActionResult DeleteTicket(string id, [FromQuery] bool cascade = false)
+	public ActionResult DeleteTicket(string id)
 	{
-		OneOf<bool, ErrorBase> result = tickets.Delete(id, cascade);
+		OneOf<bool, ErrorBase> result = tickets.Delete(id);
 
 		return result.Match(
 			(_) => NoContent(),
@@ -31,54 +31,6 @@ public class TicketController(ITicketService tickets, IConfiguration configurati
 	public ActionResult UpdateTicket(string id, [FromBody] TicketUpdateRequest body)
 	{
 		OneOf<Ticket, ErrorBase> result = tickets.Update(id, body.Position, body.Title, body.Description);
-
-		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
-			Error
-		);
-	}
-
-	[HttpPut("{id}/parent")]
-	[EndpointSummary("Connect the parent of a ticket")]
-	public ActionResult ConnectParentTicket(string id, [FromBody] TicketStructureRequest body)
-	{
-		OneOf<Ticket, ErrorBase> result = tickets.SetParent(id, body.Id);
-
-		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
-			Error
-		);
-	}
-
-	[HttpDelete("{id}/parent")]
-	[EndpointSummary("Disconnect the parent of a ticket")]
-	public ActionResult DisconnectParentTicket(string id)
-	{
-		OneOf<Ticket, ErrorBase> result = tickets.SetParent(id);
-
-		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
-			Error
-		);
-	}
-
-	[HttpPut("{id}/child")]
-	[EndpointSummary("Connect the parent of a ticket")]
-	public ActionResult ConnectChildTicket(string id, [FromBody] TicketStructureRequest body)
-	{
-		OneOf<Ticket, ErrorBase> result = tickets.SetChild(id, body.Id);
-
-		return result.Match(
-			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
-			Error
-		);
-	}
-
-	[HttpDelete("{id}/child")]
-	[EndpointSummary("Disconnect the parent of a ticket")]
-	public ActionResult DisconnectChildTicket(string id, [FromBody] TicketStructureRequest body)
-	{
-		OneOf<Ticket, ErrorBase> result = tickets.SetChild(id, body.Id, true);
 
 		return result.Match(
 			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),

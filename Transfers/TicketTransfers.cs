@@ -29,7 +29,5 @@ public record TicketDetailResponse(
 	int Position,
 	string Title,
 	string Description,
-	string ColumnId,
-	string? ParentId,
-	List<string> ChildIds
+	string ColumnId
 );
