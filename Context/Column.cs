@@ -9,12 +9,6 @@ public class Column
 	public required int Position { get; set; }
 	public List<Ticket> Tickets { get; set; } = [];
 
-	public ColumnSimpleResponse ToSimpleResponse() => new(
-		Id,
-		Name,
-		Position
-	);
-
 	public ColumnDetailResponse ToDetailResponse() => new(
 		Id,
 		Name,

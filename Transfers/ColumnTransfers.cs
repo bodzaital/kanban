@@ -9,12 +9,6 @@ public record ColumnUpdateRequest(
 	int? Position
 );
 
-public record ColumnSimpleResponse(
-	string Id,
-	string Name,
-	int Position
-);
-
 public record ColumnDetailResponse(
 	string Id,
 	string Name,

@@ -1,5 +1,6 @@
 using Kanban.Context;
 using Kanban.Data;
+using Microsoft.EntityFrameworkCore;
 using OneOf;
 
 namespace Kanban.Services;
@@ -49,7 +50,7 @@ public class ColumnService(KanbanContext context, ITicketService tickets) : ICol
 
 	public List<Column> GetAllOrdered()
 	{
-		return [.. context.Columns.OrderBy((x) => x.Position)];
+		return [.. context.Columns.Include((x) => x.Tickets).OrderBy((x) => x.Position)];
 	}
 
 	public OneOf<Column, ErrorBase> Get(string id)

@@ -12,17 +12,6 @@ public record TicketUpdateRequest(
 	string? ColumnId
 );
 
-public record TicketStructureRequest(
-	string Id
-);
-
-public record TicketSimpleResponse(
-	string Id,
-	int Position,
-	string Title,
-	string Number
-);
-
 public record TicketDetailResponse(
 	string Id,
 	string Number,

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import environment from '../environment.json';
 import { HttpClient } from '@angular/common/http';
-import { ColumnCreateRequest, ColumnDetailResponse, ColumnSimpleResponse, ColumnUpdateRequest } from '../transfers/columnTransfers';
+import { ColumnCreateRequest, ColumnDetailResponse, ColumnUpdateRequest } from '../transfers/columnTransfers';
 import { TicketCreateRequest, TicketSimpleResponse } from '../transfers/ticketTransfers';
 
 @Injectable({ providedIn: 'root' })
@@ -11,7 +11,7 @@ export class ColumnApi {
 	constructor(private http: HttpClient) { }
 
 	public createColumn(body: ColumnCreateRequest) {
-		return this.http.post<ColumnSimpleResponse>(
+		return this.http.post<ColumnDetailResponse>(
 			`${this.baseUrl}/api/column`,
 			body,
 			{ observe: "response" }
@@ -42,7 +42,7 @@ export class ColumnApi {
 	}
 
 	public getColumnsOrdered() {
-		return this.http.get<ColumnSimpleResponse[]>(
+		return this.http.get<ColumnDetailResponse[]>(
 			`${this.baseUrl}/api/column`,
 			{ observe: "response" }
 		);

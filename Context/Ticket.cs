@@ -11,13 +11,6 @@ public class Ticket
 	public required string Description { get; set; }
 	public required Column Column { get; set; }
 
-	public TicketSimpleResponse ToSimpleResponse(string prefix) => new(
-		Id,
-		Position,
-		Title,
-		GetNumberWithPrefix(prefix)
-	);
-
 	public TicketDetailResponse ToDetailResponse(string prefix) => new(
 		Id,
 		GetNumberWithPrefix(prefix),

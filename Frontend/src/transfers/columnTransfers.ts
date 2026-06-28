@@ -7,12 +7,6 @@ export interface ColumnUpdateRequest {
 	position?: number
 }
 
-export interface ColumnSimpleResponse {
-	id: string,
-	name: string,
-	position: number
-}
-
 export interface ColumnDetailResponse {
 	id: string,
 	name: string,

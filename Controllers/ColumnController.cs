@@ -21,7 +21,7 @@ public class ColumnController(IColumnService columns, ITicketService tickets, IC
 		OneOf<Column, ErrorBase> result = columns.Create(body.Name);
 
 		return result.Match(
-			(column) => Created($"/api/column/{column.Id}", column.ToSimpleResponse()),
+			(column) => Created($"/api/column/{column.Id}", column.ToDetailResponse()),
 			Error
 		);
 	}
@@ -45,7 +45,7 @@ public class ColumnController(IColumnService columns, ITicketService tickets, IC
 		OneOf<Ticket, ErrorBase> result = tickets.Create(body.Title, body.Description, id);
 
 		return result.Match(
-			(ticket) => Created($"/api/ticket/{ticket.Id}", ticket.ToSimpleResponse(_ticketPrefix)),
+			(ticket) => Created($"/api/ticket/{ticket.Id}", ticket.ToDetailResponse(_ticketPrefix)),
 			Error
 		);
 	}
@@ -68,7 +68,7 @@ public class ColumnController(IColumnService columns, ITicketService tickets, IC
 	{
 		List<Column> result = columns.GetAllOrdered();
 
-		return Ok(result.Select((column) => column.ToSimpleResponse()).ToList());
+		return Ok(result.Select((column) => column.ToDetailResponse()).ToList());
 	}
 
 	[HttpGet("{id}")]
