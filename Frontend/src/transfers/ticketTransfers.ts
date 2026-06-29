@@ -14,13 +14,6 @@ export interface TicketStructureRequest {
 	id: string
 }
 
-export interface TicketSimpleResponse {
-	id: string,
-	position: number,
-	title: string,
-	number: string
-}
-
 export interface TicketDetailResponse {
 	id: string,
 	number: string,

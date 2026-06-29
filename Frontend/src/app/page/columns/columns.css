@@ -1,0 +1,10 @@
+.columns
+{
+	display: flex;
+	gap: 8px;
+}
+
+.column
+{
+	flex: 0 0 180px;
+}

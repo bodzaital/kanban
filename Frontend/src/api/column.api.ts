@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import environment from '../environment.json';
 import { HttpClient } from '@angular/common/http';
 import { ColumnCreateRequest, ColumnDetailResponse, ColumnUpdateRequest } from '../transfers/columnTransfers';
-import { TicketCreateRequest, TicketSimpleResponse } from '../transfers/ticketTransfers';
+import { TicketCreateRequest, TicketDetailResponse } from '../transfers/ticketTransfers';
 
 @Injectable({ providedIn: 'root' })
 export class ColumnApi {
@@ -26,7 +26,7 @@ export class ColumnApi {
 	}
 
 	public createTicketInColumn(id: string, body: TicketCreateRequest) {
-		return this.http.post<TicketSimpleResponse>(
+		return this.http.post<TicketDetailResponse>(
 			`${this.baseUrl}/api/column/${id}/ticket`,
 			body,
 			{ observe: "response" }

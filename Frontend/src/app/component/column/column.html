@@ -1,1 +1,15 @@
-<p>column works!</p>
+<div class="column">
+	<header>
+		<h2>{{ data().name }}</h2>
+		<div class="count">{{ data().tickets.length }}</div>
+	</header>
+	
+	<div class="tickets">
+		@if (data().tickets.length == 0) {
+			<div class="no-tickets">No tickets.</div>
+		}
+		@for (ticketId of data().tickets; track $index) {
+			<app-column-ticket [id]="ticketId" />
+		}
+	</div>
+</div>
