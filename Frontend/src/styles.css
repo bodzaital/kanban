@@ -11,3 +11,8 @@
 {
 	:root { font-family: InterVariable, sans-serif; }
 }
+
+.cdk-drag-placeholder
+{
+	opacity: .5;
+}

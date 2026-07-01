@@ -1,15 +1,12 @@
-<div class="column">
+<div class="container" [cdkDropListData]="column().id" cdkDropList (cdkDropListDropped)="drop($event)">
 	<header>
-		<h2>{{ data().name }}</h2>
-		<div class="count">{{ data().tickets.length }}</div>
+		<h2>{{ column().name }}</h2>
+		<div class="count">{{ column().tickets.length }}</div>
 	</header>
-	
-	<div class="tickets">
-		@if (data().tickets.length == 0) {
-			<div class="no-tickets">No tickets.</div>
-		}
-		@for (ticketId of data().tickets; track $index) {
-			<app-column-ticket [id]="ticketId" />
-		}
-	</div>
+	@for (ticket of column().tickets; track $index) {
+		<app-column-ticket
+			[ticket]="ticket"
+			cdkDrag
+		/>
+	}
 </div>

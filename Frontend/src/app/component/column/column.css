@@ -1,45 +1,38 @@
-.column
+:host
 {
-	background-color: rgba(240, 240, 240);
-	padding: 8px;
-	border-radius: 14px;
+	flex: 0 0 200px;
 }
 
 header
 {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
-	min-height: 33px;
-	margin: 0 0 8px 0;
-	gap: 4px;
+	padding: 4px;
+	font-size: 14px;
 }
 
 h2
 {
 	margin: 0;
-	font-size: 14px;
-	font-weight: 700;
+	font-size: inherit;
+	white-space: nowrap;
+	max-width: 150px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .count
 {
-	font-size: 12px;
-	color: rgba(150, 150, 150);
+	color: rgb(140, 140, 140);
 }
 
-.tickets
+.container
 {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-}
-
-.no-tickets
-{
-	font-size: 12px;
-	text-align: center;
-	margin: 24px 0 24px 0;
-	font-style: italic;
-	color: rgba(150, 150, 150);
+	padding: 4px;
+	background-color: rgba(240, 240, 240);
+	border-radius: 12px;
+	min-height: 100px;;
+	border: 1px solid rgba(220, 220, 220);
 }

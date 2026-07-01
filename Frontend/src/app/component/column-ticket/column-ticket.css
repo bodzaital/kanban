@@ -7,12 +7,13 @@
 	box-shadow: 0 0 4px rgba(0, 0, 0, .25);
 	border-radius: 8px;
 	padding: 8px;
+	margin: 4px;
 	user-select: none;
+	cursor: pointer;
 
 	&:hover
 	{
 		background-color: rgba(250, 250, 250);
-		cursor: pointer;
 	}
 
 	&:active
@@ -23,13 +24,16 @@
 
 .number
 {
-	font-size: 12px;
+	font-size: 10px;
 	color: rgb(130, 130, 130);
 	margin: 0 0 4px 0;
+	font-weight: 700;
 }
 
-.title
+h3
 {
+	margin: 0;
+	font-weight: 400;
 	font-size: 14px;
 	min-height: 70px;
 	max-height: 105px;

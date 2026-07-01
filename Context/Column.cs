@@ -9,10 +9,10 @@ public class Column
 	public required int Position { get; set; }
 	public List<Ticket> Tickets { get; set; } = [];
 
-	public ColumnDetailResponse ToDetailResponse() => new(
+	public ColumnDetailResponse ToDetailResponse(string prefix) => new(
 		Id,
 		Name,
 		Position,
-		[.. Tickets.OrderBy((x) => x.Position).Select((x) => x.Id)]
+		[.. Tickets.OrderBy((x) => x.Position).Select((x) => x.ToDetailResponse(prefix))]
 	);
 }

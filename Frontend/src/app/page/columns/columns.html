@@ -1,7 +1,8 @@
-<div class="columns">
+<div class="container" cdkDropListGroup>
 	@for (column of columns(); track $index) {
-		<div class="column">
-			 <app-column [data]="column" />
-		</div>
+		<app-column
+			[column]="column"
+			(ticketMoved)="dropped($event)"
+		/>
 	}
 </div>

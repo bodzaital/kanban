@@ -1,3 +1,5 @@
+import { TicketDetailResponse } from "./ticketTransfers"
+
 export interface ColumnCreateRequest {
 	name: string
 }
@@ -11,5 +13,5 @@ export interface ColumnDetailResponse {
 	id: string,
 	name: string,
 	position: number,
-	tickets: string[]
+	tickets: TicketDetailResponse[]
 }
