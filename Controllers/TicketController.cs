@@ -30,7 +30,7 @@ public class TicketController(ITicketService tickets, IConfiguration configurati
 	[EndpointSummary("Update a ticket")]
 	public ActionResult UpdateTicket(string id, [FromBody] TicketUpdateRequest body)
 	{
-		OneOf<Ticket, ErrorBase> result = tickets.Update(id, body.Position, body.Title, body.Description);
+		OneOf<Ticket, ErrorBase> result = tickets.Update(id, body.Position, body.Title, body.Description, body.ColumnId);
 
 		return result.Match(
 			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),

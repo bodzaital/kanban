@@ -11,7 +11,7 @@ public interface ITicketService
 	OneOf<Ticket, ErrorBase> Create(string title, string? description, string columnId);
 	OneOf<Ticket, ErrorBase> Get(string id);
 	OneOf<bool, ErrorBase> Delete(string id);
-	OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description);
+	OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description, string? columnId);
 	OneOf<Ticket, ErrorBase> MoveColumn(string id, string? columnId);
 }
 
@@ -67,7 +67,7 @@ public class TicketService(KanbanContext context, IMetadataService metadata) : I
 		return true;
 	}
 
-	public OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description)
+	public OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description, string? columnId)
 	{
 		Ticket? ticket = context.Tickets.Find(id);
 		if (ticket is null) return new TicketNotFound();
@@ -76,6 +76,12 @@ public class TicketService(KanbanContext context, IMetadataService metadata) : I
 
 		ticket.Title = title ?? ticket.Title;
 		ticket.Description = description ?? ticket.Description;
+
+		if (columnId is not null)
+		{
+			OneOf<Ticket, ErrorBase> result = MoveColumn(id, columnId);
+			if (result.IsT1) return result.AsT1;
+		}
 
 		if (position is not null) ReorderTickets(ticket, position.Value);
 

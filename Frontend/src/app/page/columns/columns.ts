@@ -52,6 +52,11 @@ export class Columns implements OnInit {
 				columns.find((x) => x.id == event.container.data)!.tickets = newTickets;
 				return [...columns]
 			});
+
+			this.ticketApi.updateTicket(newTickets[event.currentIndex].id, {
+				columnId: event.container.data,
+				position: event.currentIndex
+			}).subscribe();
 		}
 	}
 }
