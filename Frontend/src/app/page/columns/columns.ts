@@ -3,6 +3,7 @@ import { ColumnApi } from '../../../api/column.api';
 import { ColumnDetailResponse } from '../../../transfers/columnTransfers';
 import { Column } from "../../component/column/column";
 import { CdkDragDrop, CdkDropListGroup, moveItemInArray, transferArrayItem } from "@angular/cdk/drag-drop";
+import { TicketApi } from '../../../api/ticket.api';
 
 @Component({
 	selector: 'app-columns',
@@ -13,10 +14,10 @@ import { CdkDragDrop, CdkDropListGroup, moveItemInArray, transferArrayItem } fro
 export class Columns implements OnInit {
 	protected columns = signal<ColumnDetailResponse[]>([]);
 
-	constructor(private api: ColumnApi) { }
+	constructor(private columnApi: ColumnApi, private ticketApi: TicketApi) { }
 
 	public ngOnInit(): void {
-		this.api.getColumnsOrdered().subscribe({
+		this.columnApi.getColumnsOrdered().subscribe({
 			next: (response) => this.columns.set(response.body!),
 			error: (error) => console.error(error)
 		});
@@ -32,6 +33,10 @@ export class Columns implements OnInit {
 				columns.find((x) => x.id == event.container.data)!.tickets = tickets;
 				return [...columns]
 			});
+
+			this.ticketApi.updateTicket(tickets[event.currentIndex].id, {
+				position: event.currentIndex
+			}).subscribe();
 		} else {
 			const oldTickets = [...this.columns().find((x) => x.id == event.previousContainer.data)!.tickets];
 			const newTickets = [...this.columns().find((x) => x.id == event.container.data)!.tickets];
