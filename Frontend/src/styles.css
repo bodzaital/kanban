@@ -16,3 +16,16 @@
 {
 	opacity: .5;
 }
+
+markdown.ticket-description
+{
+	p
+	{
+		margin: 0;
+
+		&:not(:last-of-type)
+		{
+			margin: 0 0 8px 0;
+		}
+	}
+}

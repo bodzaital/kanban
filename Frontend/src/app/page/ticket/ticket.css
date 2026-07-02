@@ -1,0 +1,94 @@
+header
+{
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.number
+{
+	color: rgb(130, 130, 130);
+	font-size: 14px;
+	font-weight: 700;
+	color: 
+}
+
+h1
+{
+	font-size: 24px;
+	font-weight: 400;
+	padding: 4px 8px;
+	margin: 0;
+}
+
+textarea
+{
+	width: 100%;
+	field-sizing: content;
+	resize: none;
+	border: none;
+	padding: 4px 8px;
+	background-color: rgba(0, 0, 0, .05);
+	border-radius: 4px;
+
+	&.h1
+	{
+		font-size: 24px;
+	}
+}
+
+.description
+{
+	markdown
+	{
+		display: block;
+		padding: 4px 8px;
+	}
+}
+
+.toolbar
+{
+	display: flex;
+	gap: 8px;
+	background-color: white;
+	box-shadow: 0 0 4px rgba(0, 0, 0, .25);
+	padding: 8px;
+	margin: 8px 0;
+	border-radius: 10px;
+
+	button
+	{
+		font-size: 14px;
+		border: 1px solid rgb(200, 200, 200);
+		background-color: rgb(240, 240, 240);
+		padding: 4px 8px;
+		border-radius: 4px;
+		cursor: pointer;
+		transition: background-color .05s linear;
+
+		&:hover
+		{
+			background-color: rgb(220, 220, 220);
+		}
+
+		&:active
+		{
+			background-color: rgb(200, 200, 200);
+		}
+
+		&.save
+		{
+			background-color: rgb(200, 240, 200);
+
+			&:hover
+			{
+				background-color: rgb(180, 220, 180);
+			}
+
+			&:active
+			{
+				background-color: rgb(160, 200, 160);
+			}
+		}
+	}
+}

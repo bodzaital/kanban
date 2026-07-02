@@ -10,6 +10,7 @@
 	margin: 4px;
 	user-select: none;
 	cursor: pointer;
+	transition: background-color .05s linear;
 
 	&:hover
 	{

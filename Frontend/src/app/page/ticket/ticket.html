@@ -1,1 +1,23 @@
-<p>ticket works!</p>
+<header>
+	<div class="number">{{ ticket()?.number }}</div>
+	@if (editing()) {
+		<textarea class="h1" (keyup)="setTitle($event)" (keydown)="disableNewLine($event)">{{ ticket()?.title }}</textarea>
+	} @else {
+		<h1>{{ ticket()?.title }}</h1>
+	}
+</header>
+<section class="toolbar">
+	@if (editing()) {
+		<button class="save" (click)="disableEditing(true)">Save</button>
+		<button class="cancel" (click)="disableEditing(false)">Cancel</button>
+	} @else {
+		<button (click)="enableEditing()">Edit</button>
+	}
+</section>
+<section class="description">
+	@if (editing()) {
+		<textarea (keyup)="setDescription($event)">{{ ticket()?.description }}</textarea>
+	} @else {
+		<markdown class="ticket-description" [data]="ticket()?.description" />
+	}
+</section>

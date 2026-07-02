@@ -18,9 +18,12 @@
     "@angular/forms": "^22.0.2",
     "@angular/platform-browser": "^22.0.2",
     "@angular/router": "^22.0.2",
+    "marked": "^18.0.5",
     "modern-normalize": "^3.0.1",
+    "ngx-markdown": "^22.0.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@angular/build": "^22.0.4",
