@@ -1,8 +1,8 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal, WritableSignal } from '@angular/core';
 import { ActivatedRouteSnapshot, CanDeactivate, GuardResult, MaybeAsync, RouterStateSnapshot } from '@angular/router';
 
 export interface DirtyPage {
-	isDirty: boolean;
+	isDirty: WritableSignal<boolean>;
 	onDirtyMessage: string;
 }
 
@@ -14,7 +14,7 @@ export class DirtyPageGuard<T> implements CanDeactivate<DirtyPage> {
 		currentState: RouterStateSnapshot,
 		nextState: RouterStateSnapshot
 	): MaybeAsync<GuardResult> {
-		if (!component.isDirty) return true;
+		if (!component.isDirty()) return true;
 
 		return confirm(component.onDirtyMessage);
 	}

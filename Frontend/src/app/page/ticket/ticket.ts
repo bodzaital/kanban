@@ -12,7 +12,7 @@ import { RouterLink } from "@angular/router";
 })
 export class Ticket implements OnInit, DirtyPage {
 	public id = input<string>();
-	public isDirty: boolean = false;
+	public isDirty = signal(false);
 	public onDirtyMessage: string = "There are unsaved changes. Are you sure you want to leave?";
 	
 	protected originalTicket = signal<TicketDetailResponse | undefined>(undefined);
@@ -38,7 +38,9 @@ export class Ticket implements OnInit, DirtyPage {
 		this.ticketApi.updateTicket(this.ticket()!.id, {
 			title: this.ticket()!.title,
 			description: this.ticket()!.description
-		}).subscribe();
+		}).subscribe({
+			next: () => this.isDirty.set(false)
+		});
 	}
 
 	protected disableNewLine(event: KeyboardEvent) {
@@ -49,6 +51,7 @@ export class Ticket implements OnInit, DirtyPage {
 
 	protected setTitle(event: KeyboardEvent) {
 		const textarea = <HTMLTextAreaElement>event.target;
+		this.isDirty.set(true);
 
 		this.ticket.update((x) => <TicketDetailResponse>{
 			...x,
@@ -58,10 +61,21 @@ export class Ticket implements OnInit, DirtyPage {
 
 	protected setDescription(event: KeyboardEvent) {
 		const textarea = <HTMLTextAreaElement>event.target;
+		this.isDirty.set(true);
 
 		this.ticket.update((x) => <TicketDetailResponse>{
 			...x,
 			description: textarea.value
 		});
+	}
+
+	protected getSaveButtonLabel() {
+		let label = "Save";
+
+		if (this.isDirty()) {
+			label += "&middot;";
+		}
+
+		return label;
 	}
 }
