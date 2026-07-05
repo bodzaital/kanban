@@ -1,12 +1,12 @@
 import { Component, computed, effect, input, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { TicketApi } from '../../../api/ticket.api';
 import { TicketDetailResponse } from '../../../transfers/ticketTransfers';
-import { MarkdownComponent } from "ngx-markdown";
 import { DirtyPage } from '../../service/dirtyPageGuard';
+import { RouterLink } from "@angular/router";
 
 @Component({
 	selector: 'app-ticket',
-	imports: [MarkdownComponent],
+	imports: [RouterLink],
 	templateUrl: './ticket.html',
 	styleUrl: './ticket.css'
 })
@@ -21,8 +21,6 @@ export class Ticket implements OnInit, DirtyPage {
 	protected title = signal<string>("");
 	protected description = signal<string>("");
 
-	protected editing = signal<boolean>(false);
-
 	constructor(private ticketApi: TicketApi) { }
 
 	public ngOnInit(): void {
@@ -35,20 +33,7 @@ export class Ticket implements OnInit, DirtyPage {
 		});
 	}
 
-	protected enableEditing() {
-		this.isDirty = true;
-		this.editing.set(true);
-	}
-
-	protected disableEditing(save: boolean) {
-		this.isDirty = false;
-		this.editing.set(false)
-		
-		if (!save) {
-			this.ticket.set(this.originalTicket());
-			return;
-		}
-
+	protected save() {
 		this.originalTicket.set(this.ticket());
 		this.ticketApi.updateTicket(this.ticket()!.id, {
 			title: this.ticket()!.title,

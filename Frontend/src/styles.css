@@ -1,5 +1,6 @@
 @import url(../node_modules/modern-normalize/modern-normalize.css);
 @import url(../public/inter/inter.css);
+@import url(../node_modules/bootstrap-icons/font/bootstrap-icons.min.css);
 
 :root
 {
