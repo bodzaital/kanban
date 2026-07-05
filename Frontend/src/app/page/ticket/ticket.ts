@@ -68,14 +68,4 @@ export class Ticket implements OnInit, DirtyPage {
 			description: textarea.value
 		});
 	}
-
-	protected getSaveButtonLabel() {
-		let label = "Save";
-
-		if (this.isDirty()) {
-			label += "&middot;";
-		}
-
-		return label;
-	}
 }

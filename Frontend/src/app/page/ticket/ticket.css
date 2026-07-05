@@ -68,12 +68,18 @@ textarea
 		cursor: pointer;
 		transition: background-color .05s linear;
 
-		&:hover
+		&:disabled
+		{
+			cursor: default;
+			color: rgba(0, 0, 0, .33);
+		}
+
+		&:not(:disabled):hover
 		{
 			background-color: rgb(220, 220, 220);
 		}
 
-		&:active
+		&:not(:disabled)&:active
 		{
 			background-color: rgb(200, 200, 200);
 		}
@@ -90,12 +96,12 @@ textarea
 		{
 			background-color: rgb(200, 240, 200);
 
-			&:hover
+			&:not(:disabled):hover
 			{
 				background-color: rgb(180, 220, 180);
 			}
 
-			&:active
+			&:not(:disabled)&:active
 			{
 				background-color: rgb(160, 200, 160);
 			}
