@@ -40,3 +40,10 @@ h3
 	max-height: 105px;
 	overflow: hidden;
 }
+
+.icons
+{
+	margin-top: 4px;
+	display: flex;
+	gap: 4px;
+}

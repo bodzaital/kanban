@@ -14,4 +14,8 @@ export class ColumnTicket {
 	protected link() {
 		return `ticket/${this.ticket().id}`;
 	}
+
+	protected hasDescription() {
+		return this.ticket().description.length > 0;
+	}
 }
