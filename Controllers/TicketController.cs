@@ -49,4 +49,16 @@ public class TicketController(ITicketService tickets, IConfiguration configurati
 			Error
 		);
 	}
+
+	[HttpGet("number/{number}")]
+	[EndpointSummary("Get a ticket by number")]
+	public ActionResult GetTicketByNumber(string number)
+	{
+		OneOf<Ticket, ErrorBase> result = tickets.GetByNumber(number, _ticketPrefix);
+
+		return result.Match(
+			(ticket) => Ok(ticket.ToDetailResponse(_ticketPrefix)),
+			Error
+		);
+	}
 }

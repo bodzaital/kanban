@@ -13,6 +13,7 @@ public interface ITicketService
 	OneOf<bool, ErrorBase> Delete(string id);
 	OneOf<Ticket, ErrorBase> Update(string id, int? position, string? title, string? description, string? columnId);
 	OneOf<Ticket, ErrorBase> MoveColumn(string id, string? columnId);
+	OneOf<Ticket, ErrorBase> GetByNumber(string number, string prefix);
 }
 
 public class TicketService(KanbanContext context, IMetadataService metadata) : ITicketService
@@ -104,6 +105,27 @@ public class TicketService(KanbanContext context, IMetadataService metadata) : I
 		ticket.Position = GetLastPosition(newColumn) + 1;
 
 		context.SaveChanges();
+		return Get(id);
+	}
+
+	public OneOf<Ticket, ErrorBase> GetByNumber(string number, string prefix)
+	{
+		number = number.StartsWith(prefix)
+			? number[(prefix.Length + 1)..]
+			: number;
+
+		if (!int.TryParse(number, out int ticketNumber))
+		{
+			return new TicketPrefixInvalid();
+		}
+
+		string? id = context.Tickets
+			.Where((x) => x.Number == ticketNumber)
+			.Select((x) => x.Id)
+			.FirstOrDefault();
+		
+		if (id is null) return new TicketNotFound();
+
 		return Get(id);
 	}
 
